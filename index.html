@@ -3,196 +3,339 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Online‑Only Clicker</title>
+  <title>Clicker – Coins, Upgrades & Boost-Shop</title>
   <style>
     :root {
-      --bg: #0f1221;
-      --panel: #171b2f;
-      --accent: #6ee7b7;
-      --danger: #ef4444;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --btn: #22263f;
+      --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb;
+      --accent:#22c55e; --accent2:#38bdf8; --warn:#f59e0b; --danger:#ef4444;
     }
     * { box-sizing: border-box; }
-    body {
-      font-family: system-ui, sans-serif;
-      background: radial-gradient(1200px 700px at 20% 0%, #1a1f3d, var(--bg));
-      color: var(--text);
-      margin: 0; padding: 24px;
-    }
-    .wrap { max-width: 900px; margin: 0 auto; }
-    h1 { margin: 0 0 16px 0; }
-    .stats {
-      display: flex; gap: 16px; flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-    .stat {
-      background: var(--panel);
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid #252a48;
-      flex: 1 1 150px;
-    }
-    .label { color: var(--muted); font-size: 0.9rem; }
-    .value { font-size: 1.6rem; font-weight: 700; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .panel {
-      background: linear-gradient(180deg, var(--panel), #121731);
-      border: 1px solid #252a48;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    h2 { margin-top: 0; }
-    button {
-      background: var(--btn); color: var(--text);
-      border: 1px solid #2c3154; padding: 10px 14px;
-      border-radius: 10px; cursor: pointer;
-      font-weight: 600; transition: filter .15s ease;
-    }
-    button:hover { filter: brightness(1.15); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .primary {
-      background: linear-gradient(180deg, #2f365f, #262a48);
-      border-color: #3b4170;
-    }
-    .accent { background: #0b7a5b; border-color: #14b18d; }
-    .danger { background: #7f1d1d; border-color: #a02b2b; }
-    .shop { display: grid; gap: 10px; }
-    .card {
-      display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid #23284a;
-      border-radius: 10px;
-      padding: 12px;
-    }
-    .meta { color: var(--muted); font-size: 0.9rem; display: flex; gap: 10px; flex-wrap: wrap; }
-    @media (max-width: 768px) {
-      .grid { grid-template-columns: 1fr; }
-    }
+    body { margin:0; font-family:system-ui,Segoe UI,Arial,sans-serif; background:linear-gradient(180deg,#0b1220,#0f172a); color:var(--text); }
+    header { padding:16px 20px; border-bottom:1px solid #1f2937; display:flex; align-items:center; justify-content:space-between; gap:16px; position:sticky; top:0; backdrop-filter:saturate(160%) blur(6px); background:#0f172acc; }
+    .stats { display:flex; gap:18px; flex-wrap:wrap; align-items:baseline; }
+    .stat { font-weight:600; }
+    .muted { color: var(--muted); font-weight:500; }
+    .mult { color:#f0abfc; font-weight:700; }
+    .container { display:grid; grid-template-columns: 1.2fr 1fr 1fr; gap:16px; padding:16px; }
+    @media (max-width:1100px){ .container{ grid-template-columns:1fr; } }
+    .card { background:var(--panel); border:1px solid #1f2937; border-radius:12px; padding:16px; }
+    h2 { margin:0 0 10px 0; font-size:20px; }
+    .big-btn { width:100%; padding:26px; font-size:22px; border-radius:12px; border:none; color:#0a0f1e; background:linear-gradient(135deg,#22c55e,#a7f3d0); cursor:pointer; font-weight:800; box-shadow:0 8px 20px #22c55e33; transition:transform .04s ease; }
+    .big-btn:active { transform:scale(0.98); }
+    .rows { display:grid; gap:10px; }
+    .item { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:10px; border:1px solid #1f2937; border-radius:10px; background:#0b1220; }
+    .item .info { display:flex; flex-direction:column; gap:4px; }
+    .item .title { font-weight:700; }
+    .item .desc { color:var(--muted); font-size:13px; }
+    .price { font-weight:700; color:var(--accent2); }
+    .btn { padding:8px 12px; border-radius:10px; border:1px solid #334155; background:#0f172a; color:#e5e7eb; cursor:pointer; transition:all .1s; }
+    .btn.buy { background:linear-gradient(135deg,#38bdf8,#22d3ee); color:#02141d; border:none; font-weight:800; }
+    .btn:disabled { opacity:.45; cursor:not-allowed; }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:#0b1325; border:1px solid #1f2937; font-size:12px; color:#c7d2fe; }
+    .boost-list { display:flex; flex-wrap:wrap; gap:8px; }
+    .tag { padding:2px 8px; border-radius:999px; background:#111827; color:#93c5fd; border:1px dashed #334155; font-size:12px; }
+    footer { padding:12px 16px; color:#94a3b8; font-size:12px; text-align:center; }
+    .danger { color: var(--danger); }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Online‑Only Clicker</h1>
+  <header>
     <div class="stats">
-      <div class="stat">
-        <div class="label">Geld</div>
-        <div id="money" class="value">0 €</div>
-      </div>
-      <div class="stat">
-        <div class="label">Passives Einkommen</div>
-        <div id="cps" class="value">0 €/s</div>
-      </div>
+      <div class="stat">Coins: <span id="coins">0</span></div>
+      <div class="muted">pro Klick: <span id="perClick">1</span></div>
+      <div class="muted">pro Sekunde: <span id="perSec">0</span></div>
+      <div class="pill">Multiplikator: <span class="mult" id="mult">×1.00</span></div>
     </div>
-
-    <div class="grid">
-      <section class="panel">
-        <h2>Clicker</h2>
-        <p class="label">Jeder Klick bringt aktives Einkommen.</p>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
-          <button id="clickBtn" class="primary">Klick mich!</button>
-          <button id="saveBtn" class="accent">Speichern</button>
-          <button id="resetBtn" class="danger">Zurücksetzen</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2>Shop</h2>
-        <div id="shop" class="shop"></div>
-      </section>
+    <div class="stats">
+      <button class="btn" id="saveBtn">Speichern</button>
+      <button class="btn" id="resetBtn">Zurücksetzen</button>
     </div>
-  </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Klicken</h2>
+      <button id="clickBtn" class="big-btn">KLICK! +<span id="clickGain">1</span></button>
+      <div style="margin-top:12px" class="boost-list" id="activeBoosts"></div>
+    </section>
+
+    <section class="card">
+      <h2>Upgrades</h2>
+      <div class="rows" id="upgrades"></div>
+    </section>
+
+    <section class="card">
+      <h2>Boost‑Shop</h2>
+      <div class="rows" id="shop"></div>
+    </section>
+  </main>
+
+  <footer>Speichert automatisch alle 10 Sekunden · Boosts laufen weiter, auch wenn die Seite geschlossen wird</footer>
 
   <script>
-    const SAVE_KEY = "online_only_clicker_v1";
+    // ---------- State ----------
     const state = {
-      money: 0,
-      moneyPerClick: 1,
+      coins: 0,
+      basePerClick: 1,
+      basePerSec: 0,
       upgrades: {
-        "Mini-Roboter": { baseCost: 50, cps: 1, level: 0, desc: "Kleiner Helfer für konstante Erträge." },
-        "Fabrik": { baseCost: 200, cps: 5, level: 0, desc: "Dein erster Skalierungsboost." },
-        "KI-System": { baseCost: 1000, cps: 20, level: 0, desc: "Optimiert Prozesse rund um die Uhr." }
-      }
+        // coole Namen + klare Effekte
+        silverFinger: { level: 0, baseCost: 10, costMul: 1.5, clickGain: 1, name: "Silberfinger", desc: "+1 pro Klick" },
+        goldenHammer: { level: 0, baseCost: 75, costMul: 1.55, clickGain: 5, name: "Goldhammer", desc: "+5 pro Klick" },
+        quantumTap:   { level: 0, baseCost: 400, costMul: 1.6, clickGain: 15, name: "Quantum‑Tap", desc: "+15 pro Klick" },
+
+        coffeeMachine:{ level: 0, baseCost: 50, costMul: 1.5, secGain: 1, name: "Kaffeemaschine", desc: "+1 pro Sekunde" },
+        roboClicker:  { level: 0, baseCost: 300, costMul: 1.55, secGain: 5, name: "Roboklicker", desc: "+5 pro Sekunde" },
+        neonFactory:  { level: 0, baseCost: 1200, costMul: 1.6, secGain: 20, name: "Neon‑Fabrik", desc: "+20 pro Sekunde" },
+      },
+      boosts: [], // { id, name, factor, expiresAt }
+      lastTick: Date.now(),
     };
 
-    const elMoney = document.getElementById("money");
-    const elCps = document.getElementById("cps");
-    const elShop = document.getElementById("shop");
-    const fmt = n => n.toLocaleString("de-DE");
-    const cpsTotal = () => Object.values(state.upgrades).reduce((sum,u) => sum + u.level * u.cps, 0);
-    const priceFor = u => Math.floor(u.baseCost * Math.pow(1.15, u.level));
+    const shopItems = [
+      { id: "x2_1", name: "Doppelschub 1 min", factor: 2, seconds: 60, cost: 200 },
+      { id: "x2_5", name: "Doppelschub 5 min", factor: 2, seconds: 300, cost: 800 },
+      { id: "x2_10", name: "Doppelschub 10 min", factor: 2, seconds: 600, cost: 1400 },
+      { id: "x5_1", name: "Fünffach 1 min", factor: 5, seconds: 60, cost: 2000 },
+      { id: "x5_5", name: "Fünffach 5 min", factor: 5, seconds: 300, cost: 7000 },
+      { id: "x5_10", name: "Fünffach 10 min", factor: 5, seconds: 600, cost: 12000 },
+    ];
 
-    function updateUI() {
-      elMoney.textContent = `${fmt(state.money)} €`;
-      elCps.textContent = `${fmt(cpsTotal())} €/s`;
-      elShop.querySelectorAll("[data-upgrade]").forEach(row => {
-        const name = row.dataset.upgrade;
-        const u = state.upgrades[name];
-        row.querySelector(".title").textContent = `${name} (Lvl ${u.level})`;
-        row.querySelector(".cpsEach").textContent = `+${fmt(u.cps)} €/s je Stufe`;
-        row.querySelector(".cpsTotal").textContent = `Gesamt: ${fmt(u.level * u.cps)} €/s`;
-        const buyBtn = row.querySelector("button");
-        buyBtn.textContent = `Kaufen – ${fmt(priceFor(u))} €`;
-        buyBtn.disabled = state.money < priceFor(u);
+    // ---------- Helpers ----------
+    const $ = sel => document.querySelector(sel);
+    const fmt = n => n >= 1e9 ? (n/1e9).toFixed(2)+"B"
+                : n >= 1e6 ? (n/1e6).toFixed(2)+"M"
+                : n >= 1e3 ? (n/1e3).toFixed(2)+"k"
+                : Math.floor(n).toString();
+
+    function upgradeCost(key) {
+      const u = state.upgrades[key];
+      return Math.floor(u.baseCost * Math.pow(u.costMul, u.level));
+    }
+
+    function totalPerClick() {
+      let base = state.basePerClick;
+      for (const u of Object.values(state.upgrades)) {
+        if (u.clickGain) base += u.level * u.clickGain;
+      }
+      return Math.max(0, base) * totalMultiplier();
+    }
+
+    function totalPerSec() {
+      let base = state.basePerSec;
+      for (const u of Object.values(state.upgrades)) {
+        if (u.secGain) base += u.level * u.secGain;
+      }
+      return Math.max(0, base) * totalMultiplier();
+    }
+
+    function totalMultiplier() {
+      if (!state.boosts.length) return 1;
+      return state.boosts.reduce((m,b) => m * b.factor, 1);
+    }
+
+    function pruneExpiredBoosts() {
+      const now = Date.now();
+      const before = state.boosts.length;
+      state.boosts = state.boosts.filter(b => b.expiresAt > now);
+      if (state.boosts.length !== before) renderActiveBoosts();
+    }
+
+    function addCoins(amount) {
+      state.coins += amount;
+      if (!Number.isFinite(state.coins)) state.coins = 0;
+    }
+
+    // ---------- UI ----------
+    function renderHeader() {
+      $("#coins").textContent = fmt(state.coins);
+      $("#perClick").textContent = fmt(totalPerClick());
+      $("#perSec").textContent = fmt(totalPerSec());
+      $("#mult").textContent = "×" + totalMultiplier().toFixed(2);
+      $("#clickGain").textContent = fmt(totalPerClick());
+    }
+
+    function renderUpgrades() {
+      const el = $("#upgrades"); el.innerHTML = "";
+      for (const [key,u] of Object.entries(state.upgrades)) {
+        const cost = upgradeCost(key);
+        const can = state.coins >= cost;
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `
+          <div class="info">
+            <div class="title">${u.name} <span class="tag">Lvl ${u.level}</span></div>
+            <div class="desc">${u.desc}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px">
+            <div class="price">💰 ${fmt(cost)}</div>
+            <button class="btn buy" ${!can ? "disabled" : ""} data-upg="${key}">Kaufen</button>
+          </div>
+        `;
+        row.querySelector("button").addEventListener("click", () => buyUpgrade(key));
+        el.appendChild(row);
+      }
+    }
+
+    function renderShop() {
+      const el = $("#shop"); el.innerHTML = "";
+      for (const it of shopItems) {
+        const can = state.coins >= it.cost;
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `
+          <div class="info">
+            <div class="title">${it.name} <span class="tag">×${it.factor}</span></div>
+            <div class="desc">Wirkt ${Math.floor(it.seconds/60)} min · Stapelt sich multiplikativ</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px">
+            <div class="price">💰 ${fmt(it.cost)}</div>
+            <button class="btn buy" ${!can ? "disabled" : ""} data-boost="${it.id}">Kaufen</button>
+          </div>
+        `;
+        row.querySelector("button").addEventListener("click", () => buyBoost(it.id));
+        el.appendChild(row);
+      }
+    }
+
+    function renderActiveBoosts() {
+      const el = $("#activeBoosts"); el.innerHTML = "";
+      if (!state.boosts.length) {
+        const span = document.createElement("span");
+        span.className = "muted";
+        span.textContent = "Keine aktiven Boosts";
+        el.appendChild(span);
+        return;
+      }
+      for (const b of state.boosts) {
+        const left = Math.max(0, b.expiresAt - Date.now());
+        const m = Math.floor(left/60000), s = Math.floor((left%60000)/1000);
+        const pill = document.createElement("div");
+        pill.className = "pill";
+        pill.textContent = `${b.name} ×${b.factor} · ${m}:${s.toString().padStart(2,"0")}`;
+        el.appendChild(pill);
+      }
+    }
+
+    function renderAll() {
+      renderHeader();
+      renderUpgrades();
+      renderShop();
+      renderActiveBoosts();
+      updateButtonsEnabled();
+    }
+
+    function updateButtonsEnabled() {
+      // enable/disable buys according to coins
+      document.querySelectorAll("[data-upg]").forEach(btn => {
+        const key = btn.getAttribute("data-upg");
+        btn.disabled = state.coins < upgradeCost(key);
+      });
+      document.querySelectorAll("[data-boost]").forEach(btn => {
+        const item = shopItems.find(i => i.id === btn.getAttribute("data-boost"));
+        btn.disabled = !item || state.coins < item.cost;
       });
     }
 
-    function buildShop() {
-      elShop.innerHTML = "";
-      for (const [name,u] of Object.entries(state.upgrades)) {
-        const row = document.createElement("div");
-        row.className = "card";
-        row.dataset.upgrade = name;
-
-        const info = document.createElement("div");
-        const title = document.createElement("div");
-        title.className = "title";
-        title.style.fontWeight = "700";
-        title.style.marginBottom = "4px";
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        const desc = document.createElement("span"); desc.textContent = u.desc;
-        const cpsEach = document.createElement("span"); cpsEach.className = "cpsEach";
-        const cpsTotal = document.createElement("span"); cpsTotal.className = "cpsTotal";
-        meta.append(desc, cpsEach, cpsTotal);
-        info.append(title, meta);
-
-        const buy = document.createElement("button");
-        buy.className = "accent";
-        buy.addEventListener("click", () => buyUpgrade(name));
-
-        row.append(info, buy);
-        elShop.appendChild(row);
-      }
-      updateUI();
+    // ---------- Actions ----------
+    function buyUpgrade(key) {
+      const cost = upgradeCost(key);
+      if (state.coins < cost) return;
+      addCoins(-cost);
+      state.upgrades[key].level++;
+      save();
+      renderAll();
     }
 
-    function clickGain() {
-      state.money += state.moneyPerClick;
-      updateUI();
+    function buyBoost(id) {
+      const it = shopItems.find(i => i.id === id);
+      if (!it || state.coins < it.cost) return;
+      addCoins(-it.cost);
+      const expiresAt = Date.now() + it.seconds * 1000;
+      state.boosts.push({ id, name: it.name, factor: it.factor, expiresAt });
+      save();
+      renderHeader();
+      renderShop();
+      renderActiveBoosts();
     }
-    function buyUpgrade(name) {
-      const u = state.upgrades[name];
-      const cost = priceFor(u);
-      if (state.money >= cost) {
-        state.money -= cost;
-        u.level++;
-        updateUI();
-      }
+
+    // ---------- Persistence ----------
+    const SAVE_KEY = "clickerSave_v1";
+
+    function save() {
+      const data = {
+        coins: state.coins,
+        upgrades: Object.fromEntries(Object.entries(state.upgrades).map(([k,u]) => [k, u.level])),
+        boosts: state.boosts,
+        basePerClick: state.basePerClick,
+        basePerSec: state.basePerSec,
+        lastSave: Date.now(),
+      };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     }
-    function save(manual=false) {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-      if (manual) alert("Spiel gespeichert!");
-    }
+
     function load() {
       const raw = localStorage.getItem(SAVE_KEY);
       if (!raw) return;
-      try { Object.assign(state, JSON.parse(raw)); }
-      catch(e) { console.warn("Speicher beschädigt."); }
+      try {
+        const data = JSON.parse(raw);
+        if (typeof data.coins === "number") state.coins = data.coins;
+        if (data.basePerClick) state.basePerClick = data.basePerClick;
+        if (data.basePerSec) state.basePerSec = data.basePerSec;
+        if (data.upgrades) {
+          for (const [k,lvl] of Object.entries(data.upgrades)) {
+            if (state.upgrades[k]) state.upgrades[k].level = lvl|0;
+          }
+        }
+        if (Array.isArray(data.boosts)) {
+          // filter abgelaufene Boosts
+          const now = Date.now();
+          state.boosts = data.boosts.filter(b => b.expiresAt > now);
+        }
+      } catch(e) {
+        console.warn("Load failed", e);
+      }
     }
-    function resetGame() {
-      if (!confirm("Alles zurücksetzen?")) return;
+
+    // ---------- Loop ----------
+    function tick() {
+      const now = Date.now();
+      const dt = now - state.lastTick; // ms
+      state.lastTick = now;
+
+      pruneExpiredBoosts();
+
+      const perSec = totalPerSec();
+      if (perSec > 0) {
+        addCoins(perSec * (dt/1000));
+      }
+
+      renderHeader();
+      renderActiveBoosts();
+      updateButtonsEnabled();
+    }
+
+    // ---------- Wire up ----------
+    $("#clickBtn").addEventListener("click", () => {
+      addCoins(totalPerClick());
+      renderHeader();
+      updateButtonsEnabled();
+    });
+
+    $("#saveBtn").addEventListener("click", () => { save(); renderHeader(); });
+
+    $("#resetBtn").addEventListener("click", () => {
+      if (!confirm("Wirklich alles zurücksetzen?")) return;
       localStorage.removeItem(SAVE_KEY);
-      state.money = 0;
-      for (const u of Object.values(state.upgrades)) u.level
+      location.reload();
+    });
+
+    // init
+    load();
+    renderAll();
+    state.lastTick = Date.now();
+    setInterval(tick, 250);
+    setInterval(() => save(), 10000);
+  </script>
+</body>
+</html>
